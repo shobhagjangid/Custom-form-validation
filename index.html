@@ -158,62 +158,85 @@
 
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
-    document.getElementById('customForm').addEventListener('submit', function(event) {
-        event.preventDefault();
+    const form = document.getElementById('customForm');
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const dobInput = document.getElementById('dob');
+    const commentInput = document.getElementById('comment');
+    const currentDate = new Date();
+    const minDate = new Date('1990-01-01');
+    const abuseWords = ["badword1", "badword2", "badword3"]; // Add more abuse words
 
-        // Reset error messages
-        const errorMessages = document.querySelectorAll('.error-message');
-        errorMessages.forEach(function(error) {
-            error.style.display = 'none';
-            error.textContent = '';
-        });
+    const nameRegex = /^[a-zA-Z\s]{3,100}$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+(?:com|org|net|edu|gov|mil)$/;
 
-        let hasError = false;
+    const showError = (input, message) => {
+        const errorDiv = input.parentElement.querySelector('.error-message');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    };
 
-        const name = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const mobile = document.getElementById('mobile').value.trim();
-        const dob = document.getElementById('dob').value;
-        const comment = document.getElementById('comment').value.trim();
-        const currentDate = new Date();
-        const minDate = new Date('1990-01-01');
-        const abuseWords = ["badword1", "badword2", "badword3"]; // Add more abuse words
+    const hideError = (input) => {
+        const errorDiv = input.parentElement.querySelector('.error-message');
+        errorDiv.style.display = 'none';
+    };
 
-        const nameRegex = /^[a-zA-Z\s]{3,100}$/;
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+(?:com|org|net|edu|gov|mil)$/;
-
-        // Name validation
+    const validateName = () => {
+        const name = nameInput.value.trim();
         if (!nameRegex.test(name)) {
-            document.getElementById('nameError').textContent = "Full Name must be 3-100 characters long and special characters are not allowed.";
-            document.getElementById('nameError').style.display = 'block';
-            hasError = true;
+            showError(nameInput, "Full Name must be 3-100 characters long and special characters are not allowed.");
+            return false;
         }
+        hideError(nameInput);
+        return true;
+    };
 
-        // Email validation
+    const validateEmail = () => {
+        const email = emailInput.value.trim();
         if (!emailRegex.test(email)) {
-            document.getElementById('emailError').textContent = "Invalid email address. Only professional domain emails are allowed.";
-            document.getElementById('emailError').style.display = 'block';
-            hasError = true;
+            showError(emailInput, "Invalid email address. Only professional domain emails are allowed.");
+            return false;
         }
+        hideError(emailInput);
+        return true;
+    };
 
-        // DOB validation
-        if (new Date(dob) > currentDate || new Date(dob) < minDate) {
-            document.getElementById('dobError').textContent = "Invalid Date of Birth. Future dates and dates before 1990 are not allowed.";
-            document.getElementById('dobError').style.display = 'block';
-            hasError = true;
+    const validateDob = () => {
+        const dob = new Date(dobInput.value);
+        if (dob > currentDate || dob < minDate) {
+            showError(dobInput, "Invalid Date of Birth. Future dates and dates before 1990 are not allowed.");
+            return false;
         }
+        hideError(dobInput);
+        return true;
+    };
 
-        // Comment validation
+    const validateComment = () => {
+        const comment = commentInput.value.trim().toLowerCase();
         for (let word of abuseWords) {
-            if (comment.toLowerCase().includes(word)) {
-                document.getElementById('commentError').textContent = "Comment contains abusive language.";
-                document.getElementById('commentError').style.display = 'block';
-                hasError = true;
-                break;
+            if (comment.includes(word)) {
+                showError(commentInput, "Comment contains abusive language.");
+                return false;
             }
         }
+        hideError(commentInput);
+        return true;
+    };
 
-        if (!hasError) {
+    nameInput.addEventListener('input', validateName);
+    emailInput.addEventListener('input', validateEmail);
+    dobInput.addEventListener('input', validateDob);
+    commentInput.addEventListener('input', validateComment);
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const isNameValid = validateName();
+        const isEmailValid = validateEmail();
+        const isDobValid = validateDob();
+        const isCommentValid = validateComment();
+
+        if (isNameValid && isEmailValid && isDobValid && isCommentValid) {
             swal("Success", "Form submitted successfully!", "success");
         }
     });
