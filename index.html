@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 400px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="date"],
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-group .radio-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .form-group .radio-group input[type="radio"] {
+            margin-right: 5px;
+        }
+        .form-group .switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 20px;
+        }
+        .form-group .switch input {
+            display: none;
+        }
+        .form-group .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+        .form-group .slider:before {
+            position: absolute;
+            content: "";
+            height: 12px;
+            width: 12px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        .form-group input:checked + .slider {
+            background-color: #66bb6a;
+        }
+        .form-group input:checked + .slider:before {
+            transform: translateX(14px);
+        }
+        .form-group textarea {
+            resize: none;
+            height: 80px;
+        }
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        .submit-btn {
+            background-color: #28a745;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Custom Form</h2>
+    <form id="customForm">
+        <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" required>
+            <div id="nameError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+            <div id="emailError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+            <label for="mobile">Mobile No.</label>
+            <input type="text" id="mobile" name="mobile" required>
+            <div id="mobileError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+            <label for="dob">Date of Birth</label>
+            <input type="date" id="dob" name="dob" required>
+            <div id="dobError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+            <label for="gender">Gender</label>
+            <div class="radio-group">
+                <label><input type="radio" id="male" name="gender" value="male" required> Male</label>
+                <label><input type="radio" id="female" name="gender" value="female" required> Female</label>
+                <label><input type="radio" id="other" name="gender" value="other" required> Other</label>
+            </div>
+            <div id="genderError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+            <label for="married">Are you Married?</label>
+            <label class="switch">
+                <input type="checkbox" id="married" name="married">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="form-group">
+            <label for="comment">Comment</label>
+            <textarea id="comment" name="comment" required></textarea>
+            <div id="commentError" class="error-message"></div>
+        </div>
+        <button type="submit" class="submit-btn">Submit</button>
+    </form>
+</div>
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    document.getElementById('customForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Reset error messages
+        const errorMessages = document.querySelectorAll('.error-message');
+        errorMessages.forEach(function(error) {
+            error.style.display = 'none';
+            error.textContent = '';
+        });
+
+        let hasError = false;
+
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const mobile = document.getElementById('mobile').value.trim();
+        const dob = document.getElementById('dob').value;
+        const comment = document.getElementById('comment').value.trim();
+        const currentDate = new Date();
+        const minDate = new Date('1990-01-01');
+        const abuseWords = ["badword1", "badword2", "badword3"]; // Add more abuse words
+
+        const nameRegex = /^[a-zA-Z\s]{3,100}$/;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+(?:com|org|net|edu|gov|mil)$/;
+
+        // Name validation
+        if (!nameRegex.test(name)) {
+            document.getElementById('nameError').textContent = "Full Name must be 3-100 characters long and special characters are not allowed.";
+            document.getElementById('nameError').style.display = 'block';
+            hasError = true;
+        }
+
+        // Email validation
+        if (!emailRegex.test(email)) {
+            document.getElementById('emailError').textContent = "Invalid email address. Only professional domain emails are allowed.";
+            document.getElementById('emailError').style.display = 'block';
+            hasError = true;
+        }
+
+        // DOB validation
+        if (new Date(dob) > currentDate || new Date(dob) < minDate) {
+            document.getElementById('dobError').textContent = "Invalid Date of Birth. Future dates and dates before 1990 are not allowed.";
+            document.getElementById('dobError').style.display = 'block';
+            hasError = true;
+        }
+
+        // Comment validation
+        for (let word of abuseWords) {
+            if (comment.toLowerCase().includes(word)) {
+                document.getElementById('commentError').textContent = "Comment contains abusive language.";
+                document.getElementById('commentError').style.display = 'block';
+                hasError = true;
+                break;
+            }
+        }
+
+        if (!hasError) {
+            swal("Success", "Form submitted successfully!", "success");
+        }
+    });
+</script>
+
+</body>
+</html>
